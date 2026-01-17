@@ -10,8 +10,8 @@ interface Props {
 }
 
 export function GameInfo({ game, currentUserId }: Props) {
-	const isPlayerX = game.player_x_id === currentUserId
-	const isPlayerO = game.player_o_id === currentUserId
+	const isPlayerX = String(game.player_x_id) === String(currentUserId)
+	const isPlayerO = game.player_o_id ? String(game.player_o_id) === String(currentUserId) : false
 	
 	const { user: playerX } = useUser(game.player_x_id)
 	const { user: playerO } = useUser(game.player_o_id)

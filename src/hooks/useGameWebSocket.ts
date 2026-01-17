@@ -126,15 +126,6 @@ export function useGameWebSocket({
 		}
 	}
 
-	const reconnect = () => {
-		disconnect()
-		setTimeout(() => {
-			if (enabled) {
-				connect()
-			}
-		}, 100)
-	}
-
 	useEffect(() => {
 		if (!enabled) {
 			disconnect()
@@ -157,7 +148,6 @@ export function useGameWebSocket({
 		isConnected,
 		game,
 		disconnect,
-		reconnect,
 		sendPing
 	}
 }

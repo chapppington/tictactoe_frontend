@@ -13,7 +13,9 @@ interface Props {
 }
 
 export function GameCard({ game, currentUserId, onJoin, isJoining }: Props) {
-	const isMyGame = game.player_x_id === currentUserId || game.player_o_id === currentUserId
+	const isPlayerX = String(game.player_x_id) === String(currentUserId)
+	const isPlayerO = game.player_o_id ? String(game.player_o_id) === String(currentUserId) : false
+	const isMyGame = isPlayerX || isPlayerO
 	const canJoin = !isMyGame && game.status === GameStatus.WAITING && !game.player_o_id
 	const canEnter = isMyGame && game.status === GameStatus.WAITING
 	
@@ -55,7 +57,7 @@ export function GameCard({ game, currentUserId, onJoin, isJoining }: Props) {
 				<div className="flex-1 min-w-0">
 					<p className="text-zinc-400 text-xs mb-0.5">X</p>
 					<p className="text-zinc-200 text-sm truncate">
-						{isMyGame ? 'Вы' : playerX?.name || `Игрок (${game.player_x_id.slice(0, 6)})`}
+						{isPlayerX ? 'Вы' : playerX?.name || `Игрок (${game.player_x_id.slice(0, 6)})`}
 					</p>
 				</div>
 				<div className="text-zinc-600 text-xs">vs</div>
@@ -63,7 +65,7 @@ export function GameCard({ game, currentUserId, onJoin, isJoining }: Props) {
 					<p className="text-zinc-400 text-xs mb-0.5">O</p>
 					<p className="text-zinc-200 text-sm truncate">
 						{game.player_o_id 
-							? (game.player_o_id === currentUserId 
+							? (isPlayerO 
 								? 'Вы' 
 								: playerO?.name || `Игрок (${game.player_o_id.slice(0, 6)})`)
 							: 'Ожидание...'}

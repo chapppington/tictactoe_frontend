@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TicTacToe Frontend
 
-## Getting Started
+Фронтенд приложение для игры в крестики-нолики с поддержкой многопользовательской игры в реальном времени.
 
-First, run the development server:
+## Технологии
+
+- **Next.js 16** - React фреймворк
+- **React 19** - UI библиотека
+- **TypeScript** - типизация
+- **Tailwind CSS** - стилизация
+- **React Query** - управление состоянием и кэширование
+- **Axios** - HTTP клиент
+- **WebSocket** - реальное время обновления игр
+- **React Hook Form** - формы
+- **Framer Motion** - анимации
+
+## Функциональность
+
+- 🔐 Авторизация и регистрация пользователей
+- 🎮 Создание и присоединение к играм
+- 📡 Обновление игр в реальном времени через WebSocket
+- 👤 Профиль пользователя
+- 🎯 Лобби с ожидающими играми
+
+## Установка и запуск
+
+### Требования
+
+- Node.js 18+
+- pnpm (или npm/yarn)
+
+### Установка зависимостей
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Настройка окружения
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Убедитесь, что бэкенд запущен на `http://localhost:8000` (или измените `BACKEND_MAIN` в `src/constants.ts`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Запуск в режиме разработки
 
-## Learn More
+```bash
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Приложение будет доступно по адресу [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Сборка для продакшена
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm build
+pnpm start
+```
 
-## Deploy on Vercel
+## Структура проекта
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/              # Страницы Next.js (App Router)
+│   ├── auth/         # Страницы авторизации
+│   ├── dashboard/    # Защищенные страницы
+│   ├── game/         # Страница игры
+│   └── lobby/        # Лобби с играми
+├── components/       # React компоненты
+├── hooks/            # Кастомные хуки
+├── services/         # API сервисы
+├── server-actions/   # Server actions и middleware
+└── shared/           # Общие типы и утилиты
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Основные возможности
+
+### Авторизация
+- JWT токены с автоматическим обновлением
+- Защита маршрутов через middleware
+- Хранение токенов в cookies
+
+### Игра
+- Создание новой игры
+- Присоединение к ожидающим играм
+- Игровой процесс с обновлениями в реальном времени
+- Автоматическое отключение WebSocket при завершении игры
+
+### Лобби
+- Список ожидающих игр (обновляется через WebSocket)
+- Список моих игр с пагинацией
+- Фильтрация по статусу игры
+
+## Скрипты
+
+- `pnpm dev` - запуск dev сервера
+- `pnpm build` - сборка проекта
+- `pnpm start` - запуск production сервера
+- `pnpm lint` - проверка кода линтером
+- `pnpm ts-check` - проверка типов TypeScript

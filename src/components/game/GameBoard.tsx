@@ -13,8 +13,8 @@ interface Props {
 export function GameBoard({ game, currentUserId, onCellClick, isLoading }: Props) {
 	const isMyTurn =
 		game.status === GameStatus.ACTIVE &&
-		((game.current_turn === PlayerSymbol.X && game.player_x_id === currentUserId) ||
-			(game.current_turn === PlayerSymbol.O && game.player_o_id === currentUserId))
+		((game.current_turn === PlayerSymbol.X && String(game.player_x_id) === String(currentUserId)) ||
+			(game.current_turn === PlayerSymbol.O && game.player_o_id && String(game.player_o_id) === String(currentUserId)))
 
 	const canMakeMove = isMyTurn && !isLoading
 
@@ -27,8 +27,8 @@ export function GameBoard({ game, currentUserId, onCellClick, isLoading }: Props
 	}
 
 	const getPlayerSymbol = () => {
-		if (game.player_x_id === currentUserId) return PlayerSymbol.X
-		if (game.player_o_id === currentUserId) return PlayerSymbol.O
+		if (String(game.player_x_id) === String(currentUserId)) return PlayerSymbol.X
+		if (game.player_o_id && String(game.player_o_id) === String(currentUserId)) return PlayerSymbol.O
 		return null
 	}
 
@@ -53,7 +53,7 @@ export function GameBoard({ game, currentUserId, onCellClick, isLoading }: Props
 				)}
 				{game.status === GameStatus.FINISHED && (
 					<div className="text-zinc-300">
-						{game.winner_id === currentUserId ? (
+						{game.winner_id && String(game.winner_id) === String(currentUserId) ? (
 							<p className="text-green-400 text-xl font-bold">Вы выиграли! 🎉</p>
 						) : game.winner_id ? (
 							<p className="text-red-400 text-xl font-bold">Вы проиграли 😔</p>

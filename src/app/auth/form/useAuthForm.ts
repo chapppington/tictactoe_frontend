@@ -75,7 +75,8 @@ export function useAuthForm(isLogin: boolean) {
 	const isLoading = isPending || isLoginPending || isRegisterPending
 
 	return {
-		register: isLogin ? loginForm.register : registerForm.register,
+		registerLogin: loginForm.register,
+		registerRegister: registerForm.register,
 		handleSubmit: isLogin
 			? loginForm.handleSubmit(onSubmitLogin)
 			: registerForm.handleSubmit(onSubmitRegister),

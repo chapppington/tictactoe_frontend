@@ -1,98 +1,28 @@
 'use client'
 
 import { GameCard } from '@/components/lobby/GameCard'
-import { gameService } from '@/services/game.service'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import toast from 'react-hot-toast'
-import { MiniLoader } from '@/components/ui/MiniLoader'
-import authTokenService from '@/services/auth/auth-token.service'
+import { useLobby } from '@/hooks/useLobby'
 import Link from 'next/link'
-import { useWaitingGamesWebSocket } from '@/hooks/useWaitingGamesWebSocket'
+import { MiniLoader } from '@/components/ui/MiniLoader'
 import { IGame } from '@/shared/types/game.types'
 
 export default function LobbyPage() {
-	const router = useRouter()
-	const queryClient = useQueryClient()
-	const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-	const [isCreating, setIsCreating] = useState(false)
-	const [myGamesPage, setMyGamesPage] = useState(0)
-	const gamesPerPage = 3
-
-	const { data: initialWaitingGames, isLoading: isLoadingInitialWaiting } = useQuery({
-		queryKey: ['games', 'waiting', 'initial'],
-		queryFn: () => gameService.getWaitingGames(20, 0)
-	})
-
-	const { games: waitingGamesFromWs, isConnected: isWaitingGamesConnected } = useWaitingGamesWebSocket({
-		enabled: !!currentUserId,
-		initialGames: initialWaitingGames?.data?.data?.items || [],
-		onGamesUpdate: (games: IGame[]) => {
-			queryClient.setQueryData(['games', 'waiting'], { data: { data: { items: games, pagination: { total: games.length, limit: 20, offset: 0 } } } })
-		}
-	})
-
-	const waitingGames = waitingGamesFromWs.length > 0
-		? { data: { data: { items: waitingGamesFromWs, pagination: { total: waitingGamesFromWs.length, limit: 20, offset: 0 } } } }
-		: initialWaitingGames
-
-	const isLoadingWaiting = isLoadingInitialWaiting && waitingGamesFromWs.length === 0
-
-	const { data: myGames, isLoading: isLoadingMy } = useQuery({
-		queryKey: ['games', 'my', myGamesPage],
-		queryFn: () => gameService.getMyGames(undefined, gamesPerPage, myGamesPage * gamesPerPage)
-	})
-
-	const createGameMutation = useMutation({
-		mutationFn: () => gameService.createGame(),
-		onSuccess: response => {
-			const gameId = response.data.data.oid
-			toast.success('Игра создана!')
-			queryClient.invalidateQueries({ queryKey: ['games', 'my'] })
-			router.push(`/game/${gameId}`)
-		},
-		onError: () => {
-			toast.error('Ошибка при создании игры')
-			setIsCreating(false)
-		}
-	})
-
-	const joinGameMutation = useMutation({
-		mutationFn: (gameId: string) => gameService.joinGame(gameId),
-		onSuccess: (_, gameId) => {
-			toast.success('Вы присоединились к игре!')
-			queryClient.invalidateQueries({ queryKey: ['games', 'my'] })
-			router.push(`/game/${gameId}`)
-		},
-		onError: (error: any) => {
-			const message = error?.response?.data?.errors?.[0]?.message || 'Ошибка при присоединении'
-			toast.error(message)
-		}
-	})
-
-	useEffect(() => {
-		const token = authTokenService.getAccessToken()
-		if (token) {
-			try {
-				const payload = JSON.parse(atob(token.split('.')[1]))
-				setCurrentUserId(payload.sub)
-			} catch {
-				router.push('/login')
-			}
-		} else {
-			router.push('/login')
-		}
-	}, [router])
-
-	const handleCreateGame = () => {
-		setIsCreating(true)
-		createGameMutation.mutate()
-	}
-
-	const handleJoinGame = (gameId: string) => {
-		joinGameMutation.mutate(gameId)
-	}
+	const {
+		currentUserId,
+		waitingGames,
+		myGames,
+		isLoadingWaiting,
+		isLoadingMy,
+		isWaitingGamesConnected,
+		isCreating,
+		isJoining,
+		myGamesPage,
+		totalMyGamesPages,
+		handleCreateGame,
+		handleJoinGame,
+		handlePreviousPage,
+		handleNextPage
+	} = useLobby()
 
 	if (!currentUserId) {
 		return (
@@ -115,10 +45,10 @@ export default function LobbyPage() {
 					</Link>
 					<button
 						onClick={handleCreateGame}
-						disabled={isCreating || createGameMutation.isPending}
+						disabled={isCreating}
 						className="px-6 py-2 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
 					>
-						{isCreating || createGameMutation.isPending ? (
+						{isCreating ? (
 							<span className="flex items-center gap-2">
 								<MiniLoader />
 								Создание...
@@ -137,22 +67,22 @@ export default function LobbyPage() {
 							<h2 className="text-xl font-semibold text-zinc-200">
 								Мои игры ({myGames.data.data.pagination.total || 0})
 							</h2>
-							{myGames.data.data.pagination.total > gamesPerPage && (
+							{myGames.data.data.pagination.total > 3 && (
 								<div className="flex items-center gap-2">
 									<button
-										onClick={() => setMyGamesPage(prev => Math.max(0, prev - 1))}
+										onClick={handlePreviousPage}
 										disabled={myGamesPage === 0 || isLoadingMy}
 										className="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
 									>
 										Предыдущая
 									</button>
 									<span className="text-zinc-400 text-sm">
-										Страница {myGamesPage + 1} из {Math.ceil((myGames.data.data.pagination.total || 0) / gamesPerPage)}
+										Страница {myGamesPage + 1} из {totalMyGamesPages}
 									</span>
 									<button
-										onClick={() => setMyGamesPage(prev => prev + 1)}
+										onClick={handleNextPage}
 										disabled={
-											myGamesPage >= Math.ceil((myGames.data.data.pagination.total || 0) / gamesPerPage) - 1 ||
+											myGamesPage >= totalMyGamesPages - 1 ||
 											isLoadingMy
 										}
 										className="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
@@ -181,7 +111,7 @@ export default function LobbyPage() {
 										game={game}
 										currentUserId={currentUserId}
 										onJoin={handleJoinGame}
-										isJoining={joinGameMutation.isPending}
+										isJoining={isJoining}
 									/>
 								))}
 							</div>
@@ -219,7 +149,7 @@ export default function LobbyPage() {
 									game={game}
 									currentUserId={currentUserId}
 									onJoin={handleJoinGame}
-									isJoining={joinGameMutation.isPending}
+									isJoining={isJoining}
 								/>
 							))}
 						</div>

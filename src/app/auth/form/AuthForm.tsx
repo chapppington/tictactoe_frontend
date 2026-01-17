@@ -11,8 +11,15 @@ interface Props {
 }
 
 export function AuthForm({ isLogin }: Props) {
-	const { handleSubmit, isLoading, onSubmit, register } =
-		useAuthForm(isLogin)
+	const { handleSubmit, isLoading, registerLogin, registerRegister } = useAuthForm(isLogin)
+
+	const emailProps = isLogin 
+		? registerLogin('email', { required: true })
+		: registerRegister('email', { required: true })
+	
+	const passwordProps = isLogin
+		? registerLogin('password', { required: true })
+		: registerRegister('password', { required: true })
 
 	return (
 		<form
@@ -26,7 +33,7 @@ export function AuthForm({ isLogin }: Props) {
 						<input
 							type="text"
 							placeholder="Enter name: "
-							{...register('name', { required: !isLogin })}
+							{...registerRegister('name', { required: true })}
 							className={styles['input-field']}
 						/>
 					</label>
@@ -39,7 +46,7 @@ export function AuthForm({ isLogin }: Props) {
 					<input
 						type="email"
 						placeholder="Enter email: "
-						{...register('email', { required: true })}
+						{...emailProps}
 						className={styles['input-field']}
 					/>
 				</label>
@@ -51,7 +58,7 @@ export function AuthForm({ isLogin }: Props) {
 					<input
 						type="password"
 						placeholder="Enter password: "
-						{...register('password', { required: true })}
+						{...passwordProps}
 						className={styles['input-field']}
 					/>
 				</label>
