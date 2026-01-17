@@ -2,6 +2,8 @@
 
 Фронтенд приложение для игры в крестики-нолики с поддержкой многопользовательской игры в реальном времени.
 
+> **Backend API**: [tictactoe_backend](https://github.com/chapppington/tictactoe_backend)
+
 ## Технологии
 
 - **Next.js 16** - React фреймворк
@@ -45,7 +47,7 @@ cp .env.example .env
 
 2. Отредактируйте `.env` файл и укажите необходимые переменные окружения.
 
-3. Убедитесь, что бэкенд запущен на `http://localhost:8000` (или измените `BACKEND_MAIN` в `src/constants.ts`)
+3. Убедитесь, что [бэкенд](https://github.com/chapppington/tictactoe_backend) запущен на `http://localhost:8000` (или измените `BACKEND_MAIN` в `src/constants.ts`)
 
 ### Запуск в режиме разработки
 
