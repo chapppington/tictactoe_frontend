@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 		return protectLoginPages(request)
 	}
 
-	if (pathname.startsWith(DASHBOARD_PAGES.HOME)) {
+	if (pathname.startsWith(DASHBOARD_PAGES.HOME) || pathname.startsWith('/lobby') || pathname.startsWith('/game')) {
 		return protectDashboardPages(request)
 	}
 
@@ -19,5 +19,5 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-	matcher: ['/dashboard/:path*', '/auth/:path*']
+	matcher: ['/dashboard/:path*', '/auth/:path*', '/lobby/:path*', '/game/:path*']
 }

@@ -16,6 +16,13 @@ class UserService {
 		)
 		return { data: response.data.data }
 	}
+
+	async getUserById(userId: string) {
+		const response = await instance.get<ApiResponse<IUser>>(
+			`${this._BASE_URL}/${userId}`
+		)
+		return { data: response.data.data }
+	}
 }
 
 export default new UserService()
